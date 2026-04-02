@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Light mode colors (default) */
+:root {
+  color-scheme: light;
+}
+
+/* Dark mode colors */
+:root.dark {
+  color-scheme: dark;
+}
