@@ -137,7 +137,7 @@ const Devices = () => {
                 </td>
                 <td className="px-5 py-4 text-sm text-text2 capitalize">{dev.type}</td>
                 <td className="px-5 py-4 text-sm text-text2">{dev.location || '—'}</td>
-                <td className="px-5 py-4 text-sm text-text2">{timeAgo(dev.lastSeenAt)}</td>
+                <td className="px-5 py-4 text-sm text-text2">{timeAgo(dev.lastSeen)}</td>
                 <td className="px-5 py-4 text-right">
                   <button 
                     onClick={() => handleDelete(dev.id)}

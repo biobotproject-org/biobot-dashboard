@@ -157,7 +157,7 @@ const DeviceDetails = () => {
         <Card className="flex flex-col items-center justify-center text-center p-6">
           <Clock className="text-amber-400 mb-2" size={24} />
           <span className="text-xs text-text3 uppercase font-bold tracking-wider mb-1">Last Seen</span>
-          <span className="text-lg font-semibold">{timeAgo(device.lastSeenAt)}</span>
+          <span className="text-lg font-semibold">{timeAgo(device.lastSeen)}</span>
         </Card>
         <Card className="flex flex-col items-center justify-center text-center p-6">
           <Database className="text-green-400 mb-2" size={24} />
