@@ -7,6 +7,7 @@ import Devices from './pages/Devices';
 import Readings from './pages/Readings';
 import Alerts from './pages/Alerts';
 import Incidents from './pages/Incidents';
+import IncidentDetail from './pages/IncidentDetail';
 import ApiHealth from './pages/ApiHealth';
 import ApiKeys from './pages/ApiKeys';
 import DeviceDetails from './pages/DeviceDetails';
@@ -50,6 +51,12 @@ const AppRoutes = () => {
       <Route path="/incidents" element={
         <PrivateRoute>
           <AppLayout><Incidents /></AppLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/incidents/:id" element={
+        <PrivateRoute>
+          <AppLayout><IncidentDetail /></AppLayout>
         </PrivateRoute>
       } />
 
