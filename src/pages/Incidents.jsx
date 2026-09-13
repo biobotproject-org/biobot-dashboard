@@ -136,6 +136,10 @@ const Incidents = () => {
           )}
         </Card>
       </section>
+
+      <div className="mt-6 text-right">
+        <Link to="/alerts" className="text-[12px] text-text3 hover:text-text2 hover:underline">Legacy alerts</Link>
+      </div>
     </div>
   );
 };

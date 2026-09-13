@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, Button, Badge } from '../components/UI';
 import api from '../services/api';
 import { timeAgo } from '../utils/utils';
+import { formatDuration, outcomeLabel } from '../utils/incidents';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area 
 } from 'recharts';
@@ -13,6 +14,7 @@ const DeviceDetails = () => {
   const [device, setDevice] = useState(null);
   const [readings, setReadings] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -43,7 +45,7 @@ const DeviceDetails = () => {
       setDevice(deviceData);
 
       // Fetch readings and alerts for this device
-      const [readRes, alertRes] = await Promise.all([
+      const [readRes, alertRes, incRes] = await Promise.all([
         (async () => {
           try {
             return await api.get(`/readings?deviceId=${id}&limit=500`);
@@ -54,7 +56,10 @@ const DeviceDetails = () => {
             throw err;
           }
         })(),
-        api.get(`/alerts?deviceId=${id}&limit=100`)
+        api.get(`/alerts?deviceId=${id}&limit=100`),
+        deviceData?.deviceId
+          ? api.get(`/incidents?deviceId=${encodeURIComponent(deviceData.deviceId)}&limit=20`).catch(() => ({ data: [] }))
+          : Promise.resolve({ data: [] })
       ]);
       
       const allReadings = (readRes.data.requests || []).flatMap(req => 
@@ -73,6 +78,7 @@ const DeviceDetails = () => {
       
       setReadings(allReadings.sort((a, b) => a.timestamp - b.timestamp));
       setAlerts(filteredAlerts);
+      setIncidents(Array.isArray(incRes.data) ? incRes.data : []);
     } catch (err) {
       console.error('Failed to fetch device data', err);
     } finally {
@@ -178,6 +184,29 @@ const DeviceDetails = () => {
           <span className="text-lg font-semibold">{readings.length}</span>
         </Card>
       </div>
+
+      <Card title="Incidents" action={<Link to="/incidents">All incidents →</Link>}>
+        <div className="divide-y divide-white/5">
+          {incidents.map(i => {
+            const open = i.status === 'open';
+            return (
+              <Link key={i.id} to={`/incidents/${i.id}`} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 hover:bg-white/[0.02] -mx-2 px-2 rounded-sm transition-colors">
+                <Badge status={i.severity}>{i.severity}</Badge>
+                <div className="flex-1 min-w-0 text-sm">
+                  <span className="font-medium">{open ? 'Open' : 'Closed'}</span>
+                  <span className="text-text3"> · {new Date(i.openedAt).toLocaleString()}</span>
+                  <span className="text-text3"> · {open ? `open for ${formatDuration(i.openedAt)}` : `lasted ${formatDuration(i.openedAt, i.closedAt)}`}</span>
+                </div>
+                {!open && <Badge status={i.outcome} className="text-[10px] shrink-0">{outcomeLabel(i.outcome)}</Badge>}
+                {open && <Badge status="open" className="text-[10px] shrink-0">open</Badge>}
+              </Link>
+            );
+          })}
+          {incidents.length === 0 && (
+            <div className="py-6 text-center text-text3 text-sm">No incidents for this node.</div>
+          )}
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Recent Device Alerts" className="flex flex-col">
