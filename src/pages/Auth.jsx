@@ -30,7 +30,12 @@ const Auth = () => {
         await register(formData);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Authentication failed. Please check your credentials.');
+      const details = err.response?.data?.details;
+      if (Array.isArray(details) && details.length > 0) {
+        setError(details.map(d => (d.field ? `${d.field}: ${d.message}` : d.message)));
+      } else {
+        setError(err.response?.data?.error || 'Authentication failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
@@ -53,7 +58,9 @@ const Auth = () => {
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-300 rounded-sm p-3 text-sm mb-4">
-            {error}
+            {Array.isArray(error)
+              ? error.map((line, i) => <div key={i}>{line}</div>)
+              : error}
           </div>
         )}
 

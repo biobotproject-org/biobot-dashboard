@@ -27,16 +27,19 @@ export const Card = ({ className, title, action, children, ...props }) => {
   );
 };
 
-export const Badge = ({ children, status, className }) => {
+export const Badge = ({ children, status, className, title }) => {
   const getColors = (s) => {
     switch (s) {
       case 'active': return 'bg-green-500/10 text-green-300';
       case 'inactive':
       case 'hibernation':
+      case 'fault':
       case 'resolved': return 'bg-gray-500/15 text-gray-400';
       case 'maintenance':
       case 'acknowledged': return 'bg-amber-500/12 text-amber-300';
+      case 'alert':
       case 'critical': return 'bg-red-500/15 text-red-300';
+      case 'watch':
       case 'high': return 'bg-amber-500/15 text-amber-300';
       case 'medium': return 'bg-blue-500/15 text-blue-300';
       case 'low': return 'bg-green-500/15 text-green-300';
@@ -49,7 +52,7 @@ export const Badge = ({ children, status, className }) => {
       'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-tight',
       getColors(status),
       className
-    )}>
+    )} title={title}>
       {['active', 'inactive', 'maintenance', 'hibernation'].includes(status) && (
         <span className="w-1.25 h-1.25 rounded-full bg-current" />
       )}

@@ -136,8 +136,21 @@ const Devices = () => {
                   <Badge status={dev.status}>{dev.status}</Badge>
                 </td>
                 <td className="px-5 py-4 text-sm text-text2 capitalize">{dev.type}</td>
-                <td className="px-5 py-4 text-sm text-text2">{dev.location || '—'}</td>
-                <td className="px-5 py-4 text-sm text-text2">{timeAgo(dev.lastSeenAt)}</td>
+                <td className="px-5 py-4 text-sm text-text2">
+                  {dev.location ? dev.location.name : (
+                    Number.isFinite(Number(dev.latitude)) && Number.isFinite(Number(dev.longitude)) ? (
+                      <a
+                        href={`https://www.openstreetmap.org/?mlat=${dev.latitude}&mlon=${dev.longitude}#map=14/${dev.latitude}/${dev.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono hover:text-accent transition-colors"
+                      >
+                        {Number(dev.latitude).toFixed(3)}, {Number(dev.longitude).toFixed(3)}
+                      </a>
+                    ) : '—'
+                  )}
+                </td>
+                <td className="px-5 py-4 text-sm text-text2">{timeAgo(dev.lastSeen)}</td>
                 <td className="px-5 py-4 text-right">
                   <button 
                     onClick={() => handleDelete(dev.id)}

@@ -19,21 +19,25 @@ const Dashboard = () => {
     devices: [],
     alerts: [],
     health: null,
+    totalReadings: null,
     loading: true
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [devRes, alertRes, healthRes] = await Promise.all([
+        const [devRes, alertRes, healthRes, readRes] = await Promise.all([
           api.get('/devices?limit=100'),
           api.get('/alerts?limit=50'),
-          api.get('/api/health/stats')
+          api.get('/api/health/stats'),
+          api.get('/readings?limit=1').catch(() => null)
         ]);
+        const totalReadings = readRes?.data?.totalReadings;
         setData({
           devices: devRes.data.devices || [],
           alerts: alertRes.data.alerts || [],
           health: healthRes.data,
+          totalReadings: typeof totalReadings === 'number' ? totalReadings : null,
           loading: false
         });
       } catch (err) {
@@ -68,9 +72,9 @@ const Dashboard = () => {
           change={<><span className="text-green-500">↑</span> monitoring</>} 
         />
         <MetricCard 
-          label="Readings (24h)" 
-          value={data.alerts.length} 
-          change="total alerts logged" 
+          label="Readings" 
+          value={data.totalReadings ?? '—'} 
+          change="readings stored" 
         />
         <MetricCard 
           label="Active Alerts" 
