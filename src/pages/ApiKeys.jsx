@@ -12,7 +12,12 @@ const SCOPES = [
 
 const SCOPE_LABELS = { user: 'API', ingest: 'Ingest' };
 
-const INGEST_URL = `${(import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '')}/ingest/notehub`;
+// VITE_API_URL may be relative (the Docker image uses "/api" behind nginx),
+// so resolve it against the page origin to give Notehub an absolute URL.
+const INGEST_URL = new URL(
+  `${(import.meta.env.VITE_API_URL || '').replace(/\/$/, '')}/ingest/notehub`,
+  window.location.origin
+).href;
 
 const NotehubChecklist = ({ apiKey }) => (
   <div className="bg-bg3 border border-white/10 rounded-lg p-4 mb-4">
@@ -177,7 +182,7 @@ const ApiKeys = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Name"
-                  placeholder={newKey.scope === 'ingest' ? 'e.g. Notehub route (Kelowna)' : 'e.g. Grafana import'}
+                  placeholder={newKey.scope === 'ingest' ? 'e.g. Notehub route Kelowna' : 'e.g. Grafana import'}
                   value={newKey.name}
                   onChange={e => setNewKey({ ...newKey, name: e.target.value })}
                   required
