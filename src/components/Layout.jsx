@@ -5,7 +5,6 @@ import {
   LayoutDashboard, 
   Smartphone, 
   Activity, 
-  Flag, 
   HeartPulse, 
   Key, 
   LogOut,
@@ -19,20 +18,20 @@ import api from '../services/api';
 
 const Sidebar = ({ open, onClose }) => {
   const { user, logout } = useAuth();
-  const [alertCount, setAlertCount] = useState(0);
+  const [openIncidents, setOpenIncidents] = useState(0);
 
   useEffect(() => {
-    const fetchAlerts = async () => {
+    const fetchOpen = async () => {
       try {
-        const res = await api.get('/alerts?status=active');
-        setAlertCount(res.data.alerts?.length || 0);
+        const res = await api.get('/incidents?status=open&limit=100');
+        setOpenIncidents(Array.isArray(res.data) ? res.data.length : 0);
       } catch (err) {
-        console.error('Failed to fetch alerts', err);
+        console.error('Failed to fetch open incidents', err);
       }
     };
     if (user) {
-      fetchAlerts();
-      const interval = setInterval(fetchAlerts, 60000);
+      fetchOpen();
+      const interval = setInterval(fetchOpen, 60000);
       return () => clearInterval(interval);
     }
   }, [user]);
@@ -42,8 +41,7 @@ const Sidebar = ({ open, onClose }) => {
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/devices', icon: Smartphone, label: 'Devices' },
       { to: '/readings', icon: Activity, label: 'Readings' },
-      { to: '/incidents', icon: Flame, label: 'Incidents' },
-      { to: '/alerts', icon: Flag, label: 'Alerts', badge: alertCount },
+      { to: '/incidents', icon: Flame, label: 'Incidents', badge: openIncidents },
     ]},
     { label: 'System', items: [
       { to: '/health', icon: HeartPulse, label: 'API Health' },

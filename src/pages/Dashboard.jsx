@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, Badge } from '../components/UI';
 import api from '../services/api';
 import { timeAgo } from '../utils/utils';
+import { formatDuration, outcomeLabel, sortOpen } from '../utils/incidents';
 
 const MetricCard = ({ label, value, change, color }) => (
   <Card className="bg-bg3 flex flex-col justify-between p-4 min-h-[110px]">
@@ -17,7 +18,8 @@ const MetricCard = ({ label, value, change, color }) => (
 const Dashboard = () => {
   const [data, setData] = useState({
     devices: [],
-    alerts: [],
+    openIncidents: [],
+    recentIncidents: [],
     health: null,
     totalReadings: null,
     loading: true
@@ -26,16 +28,21 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [devRes, alertRes, healthRes, readRes] = await Promise.all([
+        const [devRes, openRes, recentRes, healthRes, readRes] = await Promise.all([
           api.get('/devices?limit=100'),
-          api.get('/alerts?limit=50'),
+          api.get('/incidents?status=open&limit=100'),
+          api.get('/incidents?limit=10'),
           api.get('/api/health/stats'),
           api.get('/readings?limit=1').catch(() => null)
         ]);
         const totalReadings = readRes?.data?.totalReadings;
+        const open = sortOpen(openRes.data || []);
+        const openIds = new Set(open.map(i => i.id));
+        const recent = [...open, ...(recentRes.data || []).filter(i => !openIds.has(i.id))].slice(0, 5);
         setData({
           devices: devRes.data.devices || [],
-          alerts: alertRes.data.alerts || [],
+          openIncidents: open,
+          recentIncidents: recent,
           health: healthRes.data,
           totalReadings: typeof totalReadings === 'number' ? totalReadings : null,
           loading: false
@@ -53,7 +60,7 @@ const Dashboard = () => {
   }
 
   const activeDevices = data.devices.filter(d => d.status === 'active').length;
-  const activeAlerts = data.alerts.filter(a => a.status === 'active').length;
+  const openCount = data.openIncidents.length;
   const totalEndpoints = data.health ? Object.keys(data.health.endpoints || {}).length : 0;
 
   const deviceStats = [
@@ -77,10 +84,10 @@ const Dashboard = () => {
           change="readings stored" 
         />
         <MetricCard 
-          label="Active Alerts" 
-          value={activeAlerts} 
-          color={activeAlerts > 0 ? 'var(--amber)' : 'var(--green)'}
-          change={activeAlerts > 0 ? `${activeAlerts} need attention` : 'All clear'} 
+          label="Open incidents" 
+          value={openCount} 
+          color={openCount > 0 ? '#fca5a5' : '#86efac'}
+          change={openCount > 0 ? 'need attention' : 'All clear'} 
         />
         <MetricCard 
           label="API Health" 
@@ -91,19 +98,24 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card title="Recent Alerts" action={<Link to="/alerts">View all →</Link>}>
+        <Card title="Recent incidents" action={<Link to="/incidents">View all →</Link>}>
           <div className="divide-y divide-white/5">
-            {data.alerts.slice(0, 5).map(a => (
-              <div key={a.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                <Badge status={a.severity}>{a.severity}</Badge>
-                <div className="flex-1">
-                  <div className="text-sm leading-snug">{a.message}</div>
-                  <div className="text-[11px] text-text3 mt-0.5">{a.device?.name || 'Unknown device'} · {timeAgo(a.triggeredAt)}</div>
-                </div>
-                <Badge status={a.status} className="text-[10px]">{a.status}</Badge>
-              </div>
-            ))}
-            {!data.alerts.length && <div className="text-center py-6 text-text3 text-sm">No alerts</div>}
+            {data.recentIncidents.map(i => {
+              const open = i.status === 'open';
+              return (
+                <Link key={i.id} to={`/incidents/${i.id}`} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 hover:bg-white/[0.02] -mx-2 px-2 rounded-sm transition-colors">
+                  <Badge status={i.severity} className="mt-0.5">{i.severity}</Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm leading-snug font-medium truncate">{i.device?.name || i.device?.deviceId || `Incident #${i.id}`}</div>
+                    <div className="text-[11px] text-text3 mt-0.5">
+                      {open ? `open for ${formatDuration(i.openedAt)}` : `${timeAgo(i.closedAt || i.lastEventAt)} · lasted ${formatDuration(i.openedAt, i.closedAt)}`}
+                    </div>
+                  </div>
+                  <Badge status={open ? 'open' : i.outcome} className="text-[10px] shrink-0">{open ? 'open' : outcomeLabel(i.outcome)}</Badge>
+                </Link>
+              );
+            })}
+            {!data.recentIncidents.length && <div className="text-center py-6 text-text3 text-sm">No incidents yet</div>}
           </div>
         </Card>
 

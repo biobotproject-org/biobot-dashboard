@@ -7,6 +7,7 @@ import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 
 const Devices = () => {
   const [devices, setDevices] = useState([]);
+  const [openIncidentDevices, setOpenIncidentDevices] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [newDevice, setNewDevice] = useState({ name: '', deviceId: '', type: 'sensor', location: '' });
@@ -14,8 +15,12 @@ const Devices = () => {
   const fetchDevices = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/devices');
+      const [res, incRes] = await Promise.all([
+        api.get('/devices'),
+        api.get('/incidents?status=open&limit=100').catch(() => ({ data: [] })),
+      ]);
       setDevices(res.data.devices || []);
+      setOpenIncidentDevices(new Set((incRes.data || []).map(i => i.device?.deviceId).filter(Boolean)));
     } catch (err) {
       console.error('Failed to fetch devices', err);
     } finally {
@@ -128,7 +133,12 @@ const Devices = () => {
               <tr key={dev.id} className="hover:bg-white/[0.01] transition-colors group">
                 <td className="px-5 py-4">
                   <Link to={`/devices/${dev.id}`} className="hover:text-accent transition-colors">
-                    <div className="font-semibold text-[14px]">{dev.name}</div>
+                    <div className="font-semibold text-[14px] flex items-center gap-2">
+                      {openIncidentDevices.has(dev.deviceId) && (
+                        <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.25)] shrink-0" title="Open incident" aria-label="Open incident" />
+                      )}
+                      {dev.name}
+                    </div>
                     <div className="text-[11px] text-text3 font-mono">{dev.uid}</div>
                   </Link>
                 </td>
