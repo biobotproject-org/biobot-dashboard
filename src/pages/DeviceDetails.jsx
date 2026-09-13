@@ -152,7 +152,20 @@ const DeviceDetails = () => {
         <Card className="flex flex-col items-center justify-center text-center p-6">
           <MapPin className="text-blue-400 mb-2" size={24} />
           <span className="text-xs text-text3 uppercase font-bold tracking-wider mb-1">Location</span>
-          <span className="text-lg font-semibold">{device.location || 'Not Set'}</span>
+          <span className="text-lg font-semibold">
+            {device.location ? device.location.name : (
+              Number.isFinite(Number(device.latitude)) && Number.isFinite(Number(device.longitude)) ? (
+                <a
+                  href={`https://www.openstreetmap.org/?mlat=${device.latitude}&mlon=${device.longitude}#map=14/${device.latitude}/${device.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono hover:text-accent transition-colors"
+                >
+                  {Number(device.latitude).toFixed(3)}, {Number(device.longitude).toFixed(3)}
+                </a>
+              ) : 'Not Set'
+            )}
+          </span>
         </Card>
         <Card className="flex flex-col items-center justify-center text-center p-6">
           <Clock className="text-amber-400 mb-2" size={24} />
