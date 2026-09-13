@@ -44,7 +44,9 @@ export const Badge = ({ children, status, className, title }) => {
       case 'watch':
       case 'sensor_fault':
       case 'high': return 'bg-amber-500/15 text-amber-300';
-      case 'medium': return 'bg-blue-500/15 text-blue-300';
+      case 'medium':
+      case 'user': return 'bg-blue-500/15 text-blue-300';
+      case 'ingest': return 'bg-accent/15 text-accent';
       case 'false_alarm':
       case 'low': return 'bg-green-500/15 text-green-300';
       case 'none':
