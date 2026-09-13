@@ -273,6 +273,13 @@ const DeviceDetails = () => {
                   <td className="px-5 py-3 text-right">
                     <span className="font-mono font-bold text-accent">{r.value}</span>
                     <span className="text-[10px] text-text3 ml-1 font-medium">{r.unit}</span>
+                    {r.anomalySeverity && r.anomalySeverity !== 'none' && (
+                      <Badge
+                        status={r.anomalySeverity}
+                        className="ml-2 align-middle"
+                        title={r.anomalyScore != null ? `Anomaly score: ${r.anomalyScore}` : undefined}
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

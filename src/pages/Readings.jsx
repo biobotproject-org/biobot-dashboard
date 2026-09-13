@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Input } from '../components/UI';
+import { Card, Button, Input, Badge } from '../components/UI';
 import api from '../services/api';
 import { timeAgo } from '../utils/utils';
 import { Search, RefreshCw, Filter } from 'lucide-react';
@@ -96,6 +96,13 @@ const Readings = () => {
                 <td className="px-5 py-3 text-right">
                   <span className="font-mono font-bold text-accent">{r.value}</span>
                   <span className="text-[10px] text-text3 ml-1 font-medium">{r.unit}</span>
+                  {r.anomalySeverity && r.anomalySeverity !== 'none' && (
+                    <Badge
+                      status={r.anomalySeverity}
+                      className="ml-2 align-middle"
+                      title={r.anomalyScore != null ? `Anomaly score: ${r.anomalyScore}` : undefined}
+                    />
+                  )}
                 </td>
               </tr>
             ))}
