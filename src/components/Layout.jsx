@@ -9,12 +9,15 @@ import {
   HeartPulse, 
   Key, 
   LogOut,
-  Circle
+  Circle,
+  Flame,
+  Menu,
+  X
 } from 'lucide-react';
 import { cn } from '../utils/utils';
 import api from '../services/api';
 
-const Sidebar = () => {
+const Sidebar = ({ open, onClose }) => {
   const { user, logout } = useAuth();
   const [alertCount, setAlertCount] = useState(0);
 
@@ -39,6 +42,7 @@ const Sidebar = () => {
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/devices', icon: Smartphone, label: 'Devices' },
       { to: '/readings', icon: Activity, label: 'Readings' },
+      { to: '/incidents', icon: Flame, label: 'Incidents' },
       { to: '/alerts', icon: Flag, label: 'Alerts', badge: alertCount },
     ]},
     { label: 'System', items: [
@@ -48,13 +52,22 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-[220px] min-w-[220px] bg-bg2 border-r border-white/5 flex flex-col h-screen z-10">
+    <>
+      {open && <div className="fixed inset-0 bg-black/60 z-20 md:hidden" onClick={onClose} aria-hidden="true" />}
+      <div className={cn(
+        "w-[220px] min-w-[220px] bg-bg2 border-r border-white/5 flex flex-col h-screen z-30",
+        "fixed inset-y-0 left-0 transition-transform duration-200 md:static md:translate-x-0",
+        open ? "translate-x-0" : "-translate-x-full"
+      )}>
       <div className="flex items-center gap-2.5 p-5 pb-4 border-b border-white/5">
         <div className="w-[30px] h-[30px] bg-gradient-to-br from-accent to-accent2 rounded-lg flex items-center justify-center font-bold text-bg text-sm">B</div>
         <div>
           <div className="text-[15px] font-semibold tracking-tight">BioBot Cloud</div>
           <div className="text-[10px] text-text3 font-semibold uppercase tracking-widest">IoT Platform</div>
         </div>
+        <button onClick={onClose} className="ml-auto p-1 text-text3 hover:text-text md:hidden" aria-label="Close menu">
+          <X size={18} />
+        </button>
       </div>
       
       <nav className="p-2.5 flex-1 overflow-y-auto">
@@ -65,6 +78,7 @@ const Sidebar = () => {
               <NavLink
                 key={item.to}
                 to={item.to}
+                onClick={onClose}
                 className={({ isActive }) => cn(
                   "flex items-center gap-2.5 p-2 rounded-sm text-text2 hover:bg-bg3 hover:text-text transition-all text-[13.5px]",
                   isActive && "bg-accent/10 text-accent hover:bg-accent/15 hover:text-accent"
@@ -92,11 +106,12 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
-const Topbar = () => {
+const Topbar = ({ onMenu }) => {
   const { logout } = useAuth();
   const location = useLocation();
   const [status, setStatus] = useState('connected');
@@ -105,6 +120,7 @@ const Topbar = () => {
     '/': 'Dashboard',
     '/devices': 'Devices',
     '/readings': 'Sensor Readings',
+    '/incidents': 'Incidents',
     '/alerts': 'Alerts',
     '/health': 'API Health',
     '/keys': 'API Keys'
@@ -123,9 +139,19 @@ const Topbar = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const title = titles[location.pathname]
+    || (location.pathname.startsWith('/incidents/') ? 'Incident' : null)
+    || (location.pathname.startsWith('/devices/') ? 'Device' : null)
+    || 'BioBot Cloud';
+
   return (
-    <div className="h-14 min-h-[56px] flex items-center justify-between px-6 border-b border-white/5 bg-bg2">
-      <div className="text-base font-semibold">{titles[location.pathname] || 'BioBot Cloud'}</div>
+    <div className="h-14 min-h-[56px] flex items-center justify-between px-4 md:px-6 border-b border-white/5 bg-bg2">
+      <div className="flex items-center gap-3">
+        <button onClick={onMenu} className="p-1 -ml-1 text-text2 hover:text-text md:hidden" aria-label="Open menu">
+          <Menu size={20} />
+        </button>
+        <div className="text-base font-semibold">{title}</div>
+      </div>
       <div className="flex items-center gap-2.5">
         <div className={cn(
           "w-2 h-2 rounded-full",
@@ -139,12 +165,13 @@ const Topbar = () => {
 };
 
 export const AppLayout = ({ children }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-6">
+      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Topbar onMenu={() => setMenuOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </main>
       </div>

@@ -38,11 +38,18 @@ export const Badge = ({ children, status, className, title }) => {
       case 'maintenance':
       case 'acknowledged': return 'bg-amber-500/12 text-amber-300';
       case 'alert':
-      case 'critical': return 'bg-red-500/15 text-red-300';
+      case 'critical':
+      case 'fire':
+      case 'open': return 'bg-red-500/15 text-red-300';
       case 'watch':
+      case 'sensor_fault':
       case 'high': return 'bg-amber-500/15 text-amber-300';
       case 'medium': return 'bg-blue-500/15 text-blue-300';
+      case 'false_alarm':
       case 'low': return 'bg-green-500/15 text-green-300';
+      case 'none':
+      case 'closed':
+      case 'unknown': return 'bg-gray-500/15 text-gray-400';
       default: return 'bg-gray-500/15 text-gray-400';
     }
   };
