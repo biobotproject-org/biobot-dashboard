@@ -72,7 +72,7 @@ const Dashboard = () => {
           change={<><span className="text-green-500">↑</span> monitoring</>} 
         />
         <MetricCard 
-          label="Readings (24h)" 
+          label="Readings" 
           value={data.totalReadings ?? '—'} 
           change="readings stored" 
         />
