@@ -5,6 +5,8 @@ import { Card, Button, Badge } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { cn } from '../utils/utils';
+import SituationMap from '../components/SituationMap';
+import SituationFacts from '../components/SituationFacts';
 import {
   formatDuration, hasCoords, osmLink, geoLink, formatCoords, signalLabel, outcomeLabel,
 } from '../utils/incidents';
@@ -168,6 +170,48 @@ const AcknowledgeForm = ({ incident, onDone }) => {
   );
 };
 
+// Wind, spread envelope and satellite cross-check around the node.
+const SituationCard = ({ incident }) => {
+  const [context, setContext] = useState(null);
+  const dev = incident.device || {};
+
+  useEffect(() => {
+    let alive = true;
+    api.get(`/incidents/${incident.id}/context`)
+      .then(res => { if (alive) setContext(res.data); })
+      .catch(() => { if (alive) setContext({ failed: true }); });
+    return () => { alive = false; };
+  }, [incident.id, incident.status]);
+
+  if (!hasCoords(dev)) return null;
+  const mapIncident = context && !context.failed
+    ? [{ id: incident.id, severity: incident.status === 'open' ? incident.severity : 'none', device: dev, spread: context.spread }]
+    : [];
+
+  return (
+    <Card title="Situation" className="p-4 md:p-5">
+      <div className="relative isolate rounded-sm overflow-hidden border border-white/5 mb-3">
+        <SituationMap
+          className="h-[240px] md:h-[280px] w-full"
+          devices={[{ ...dev, lastSeverity: incident.status === 'open' ? incident.severity : 'none', lastSeen: incident.lastEventAt }]}
+          incidents={incident.status === 'open' ? mapIncident : []}
+          hotspots={context?.satellite?.hotspots || []}
+          fitKey={`incident-${incident.id}-${context ? 'ctx' : 'none'}`}
+          scrollWheelZoom={false}
+        />
+      </div>
+      {!context && <div className="text-sm text-text3">Checking wind and satellite data…</div>}
+      {context?.failed && <div className="text-sm text-text3">Wind and satellite data are unavailable right now.</div>}
+      {context && !context.failed && <SituationFacts context={context} />}
+      {context?.spread && (
+        <p className="text-[11px] text-text3 mt-2 leading-snug">
+          Shaded areas: where a fire starting at the node could reach in 30, 60 and 120 min with this wind. Rough guide; ignores terrain and fuel moisture.
+        </p>
+      )}
+    </Card>
+  );
+};
+
 const IncidentDetail = () => {
   const { id } = useParams();
   const [incident, setIncident] = useState(null);
@@ -244,6 +288,8 @@ const IncidentDetail = () => {
       ) : (
         <div className="text-sm text-text3">No location reported by this node yet.</div>
       )}
+
+      <SituationCard incident={incident} />
 
       {/* HOW LONG */}
       <div className="text-sm text-text2 leading-relaxed">

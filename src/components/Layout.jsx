@@ -11,6 +11,7 @@ import {
   Circle,
   Flame,
   Menu,
+  Map as MapIcon,
   X
 } from 'lucide-react';
 import { cn } from '../utils/utils';
@@ -39,6 +40,7 @@ const Sidebar = ({ open, onClose }) => {
   const navItems = [
     { label: 'Monitor', items: [
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/map', icon: MapIcon, label: 'Live Map' },
       { to: '/devices', icon: Smartphone, label: 'Devices' },
       { to: '/readings', icon: Activity, label: 'Readings' },
       { to: '/incidents', icon: Flame, label: 'Incidents', badge: openIncidents },
@@ -116,6 +118,7 @@ const Topbar = ({ onMenu }) => {
 
   const titles = {
     '/': 'Dashboard',
+    '/map': 'Live Map',
     '/devices': 'Devices',
     '/readings': 'Sensor Readings',
     '/incidents': 'Incidents',
