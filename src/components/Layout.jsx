@@ -12,6 +12,7 @@ import {
   Flame,
   Menu,
   Map as MapIcon,
+  Users as UsersIcon,
   X
 } from 'lucide-react';
 import { cn } from '../utils/utils';
@@ -48,6 +49,7 @@ const Sidebar = ({ open, onClose }) => {
     { label: 'System', items: [
       { to: '/health', icon: HeartPulse, label: 'API Health' },
       { to: '/keys', icon: Key, label: 'API Keys' },
+      ...(user?.role === 'admin' ? [{ to: '/users', icon: UsersIcon, label: 'Users' }] : []),
     ]}
   ];
 
@@ -124,7 +126,8 @@ const Topbar = ({ onMenu }) => {
     '/incidents': 'Incidents',
     '/alerts': 'Alerts',
     '/health': 'API Health',
-    '/keys': 'API Keys'
+    '/keys': 'API Keys',
+    '/users': 'Users'
   };
 
   useEffect(() => {

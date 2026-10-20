@@ -39,6 +39,21 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
+  // The stored user is a login-time snapshot. Refresh it once per session
+  // so a role an admin changed since then shows without signing out.
+  useEffect(() => {
+    if (!token) return;
+    let alive = true;
+    api.get('/me')
+      .then(res => {
+        if (!alive) return;
+        localStorage.setItem('user', JSON.stringify(res.data));
+        setUser(res.data);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [token]);
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
