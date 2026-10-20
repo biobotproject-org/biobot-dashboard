@@ -8,6 +8,7 @@ import Readings from './pages/Readings';
 import Alerts from './pages/Alerts';
 import Incidents from './pages/Incidents';
 import IncidentDetail from './pages/IncidentDetail';
+import LiveMap from './pages/LiveMap';
 import ApiHealth from './pages/ApiHealth';
 import ApiKeys from './pages/ApiKeys';
 import DeviceDetails from './pages/DeviceDetails';
@@ -48,6 +49,12 @@ const AppRoutes = () => {
         </PrivateRoute>
       } />
       
+      <Route path="/map" element={
+        <PrivateRoute>
+          <AppLayout><LiveMap /></AppLayout>
+        </PrivateRoute>
+      } />
+
       <Route path="/incidents" element={
         <PrivateRoute>
           <AppLayout><Incidents /></AppLayout>
