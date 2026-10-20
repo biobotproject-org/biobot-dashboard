@@ -9,6 +9,7 @@ import Alerts from './pages/Alerts';
 import Incidents from './pages/Incidents';
 import IncidentDetail from './pages/IncidentDetail';
 import LiveMap from './pages/LiveMap';
+import Users from './pages/Users';
 import ApiHealth from './pages/ApiHealth';
 import ApiKeys from './pages/ApiKeys';
 import DeviceDetails from './pages/DeviceDetails';
@@ -82,6 +83,12 @@ const AppRoutes = () => {
       <Route path="/keys" element={
         <PrivateRoute>
           <AppLayout><ApiKeys /></AppLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/users" element={
+        <PrivateRoute>
+          <AppLayout><Users /></AppLayout>
         </PrivateRoute>
       } />
 
