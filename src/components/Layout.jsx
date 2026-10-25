@@ -62,10 +62,10 @@ const Sidebar = ({ open, onClose }) => {
         open ? "translate-x-0" : "-translate-x-full"
       )}>
       <div className="flex items-center gap-2.5 p-5 pb-4 border-b border-white/5">
-        <div className="w-[30px] h-[30px] bg-gradient-to-br from-accent to-accent2 rounded-lg flex items-center justify-center font-bold text-bg text-sm">B</div>
+        <div className="w-[30px] h-[30px] bg-gradient-to-br from-accent to-accent2 rounded-lg flex items-center justify-center text-bg"><Flame size={17} strokeWidth={2.5} /></div>
         <div>
-          <div className="text-[15px] font-semibold tracking-tight">BioBot Cloud</div>
-          <div className="text-[10px] text-text3 font-semibold uppercase tracking-widest">IoT Platform</div>
+          <div className="text-[15px] font-semibold tracking-tight">Wildfire Alarm</div>
+          <div className="text-[10px] text-text3 font-semibold uppercase tracking-widest">Early detection</div>
         </div>
         <button onClick={onClose} className="ml-auto p-1 text-text3 hover:text-text md:hidden" aria-label="Close menu">
           <X size={18} />
@@ -146,7 +146,7 @@ const Topbar = ({ onMenu }) => {
   const title = titles[location.pathname]
     || (location.pathname.startsWith('/incidents/') ? 'Incident' : null)
     || (location.pathname.startsWith('/devices/') ? 'Device' : null)
-    || 'BioBot Cloud';
+    || 'Wildfire Alarm';
 
   return (
     <div className="h-14 min-h-[56px] flex items-center justify-between px-4 md:px-6 border-b border-white/5 bg-bg2">

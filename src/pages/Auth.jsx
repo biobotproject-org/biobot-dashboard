@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Input, Button } from '../components/UI';
+import { Flame } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -49,10 +50,10 @@ const Auth = () => {
     <div className="fixed inset-0 bg-bg flex items-center justify-center z-[100]">
       <div className="bg-bg2 border border-white/10 rounded-xl p-9 w-[380px]">
         <div className="flex items-center gap-3.5 mb-7">
-          <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent2 rounded-xl flex items-center justify-center text-xl font-bold text-bg">B</div>
+          <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent2 rounded-xl flex items-center justify-center text-bg"><Flame size={22} strokeWidth={2.5} /></div>
           <div>
-            <div className="text-[22px] font-semibold">BioBot Cloud</div>
-            <div className="text-sm text-text3">IoT Monitoring Platform</div>
+            <div className="text-[22px] font-semibold">Wildfire Alarm</div>
+            <div className="text-sm text-text3">Early wildfire detection</div>
           </div>
         </div>
 
